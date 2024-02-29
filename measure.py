@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
 ''' 
-Ethan Bleier
 Inspired by: https://video.cs50.io/WbzNRTTrX0g?screen=0Towr-pBuzw&start=3969
-This program aims to determine if research can be done with search
-Code is adapted from a maze search algorithm
+
+This program aims to determine if the results are interesting enough to make meaningful observations from
+Code is adapted from a maze search algorithm into an algorithm measurer that compares different algorithms and yadayadayada
 
 For readability and simplicity, I'm beginning this project by comparing just two algorithms
 1: Bubble Sort 2: TBA, over one dataset, and graphing the results
@@ -12,16 +12,17 @@ The graph should make it exeedingly clear which algo is faster
 data will become interesting as I add more algorithms
 '''
 
-import sys
-import csv
+# chosen sample:
 # dataset/sawtoothAscendingDataWithNoise0.csv
+from bubble_sort import BubbleSort
 
 class Node():
-    def __init__(self, A, state, parent, dataset):
+    def __init__(self, A, parent, dataset):
+        # A is the algo self is using/measuring
         self.A = A
 
         # state should return the name of csv file? 
-        self.state = state
+        # self.state = state
 
         # in case we want to go backwards for whatever future reason, 
         # lets monitor the parent node
@@ -70,6 +71,7 @@ class QueueRoot(StackRoot): # QueueRoot extends StackRoot (python > java)
             self.root = self.root[1:]
             return node
 
+import csv
 
 class Measure():
 
@@ -79,18 +81,22 @@ class Measure():
         with open(filename, 'r') as file:
             csv_file = csv.DictReader(file)
             for row in csv_file:
-                self.data.append(row)
+                try:
+                    # row needs to be float
+                    r_flt = float(row[next(iter(row))])
+                    self.data.append(r_flt)
+                except (ValueError, KeyError):
+                    print(f"Encountered an invalid row({row})")
 
     def solve(self):
         """Finds best algorithm"""
-        from bubble_sort import BubbleSort
         A = BubbleSort()
 
         # Keep track of number of states measured (instead of explored)
         self.num_measured = 0
 
         # __init__(A, state, parent, dataset)
-        start = Node(state=self.start, A=A, parent=None, dataset=self.data)
+        start = Node(A=A, parent=None, dataset=self.data)
         root = StackRoot()
         root.add(start)
 
@@ -98,28 +104,34 @@ class Measure():
         self.measured = set()
 
         # Keep looping until optimal algorithm (A*) is found
-        while True:
+        # while True:
 
-            # nothing left in root bruh
-            if root.empty():
-                raise Exception("oops")
+        #     # nothing left in root bruh
+        #     if root.empty():
+        #         raise Exception("oops")
 
-            # Choose a node from the root
-            node = root.remove()
+        #     # Choose a node from the root
+        #     node = root.remove()
 
-            # probably wise to keep track of this
-            # self.num_explored += 1
+        #     # probably wise to keep track of this
+        #     # self.num_explored += 1
             
-            # measure the time taken to sort
-            # TODO: more thinking less random keystrokes
-            performance = A.bubbleSort(self.data) # big yikes here
-            node.measured = True
-            self.explored.add(node.state)
+        #     # measure the time taken to sort
+        #     # TODO: more thinking less random keystrokes
+        #     performance = A.bubbleSort(self.data) # big yikes here
+        #     size = self.data.size()
+        #     print(f"dataset size: {size}, performance in seconds: {performance:.6f}\n")
+        #     node.measured = True
+        #     self.explored.add(node.state)
 
-            # Add neighbors to frontier
-            for action, state in self.neighbors(node.state):
-                if not root.contains_state(state) and state not in self.explored:
-                    child = Node(state=state, parent=node, action=action)
-                    root.add(child)
+        import time
+        for size in range(len(self.data)):
+            start_time = time.time()
+            end_time = time.time()
+            print(f"dataset size: {size+1}, performance in seconds: {end_time - start_time:.6f}")
+            self.num_measured += 1
 
-
+if __name__ == "__main__":
+   filename = "dataset/sawtoothAscendingDataWithNoise0.csv"
+   measure = Measure(filename)
+   measure.solve()
