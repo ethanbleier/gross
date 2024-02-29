@@ -44,6 +44,11 @@ class QueueRoot(StackRoot): # QueueRoot extends StackRoot (python > java)
             self.root = self.root[1:]
             return node
 
+
+''' 
+Inspired by: https://video.cs50.io/WbzNRTTrX0g?screen=0Towr-pBuzw&start=3969
+'''
+
 class Measure():
 
     def __init__(self, filename):
@@ -53,7 +58,6 @@ class Measure():
             for row in csv_file:
                 self.data.append(row)
 
-    # https://video.cs50.io/WbzNRTTrX0g?screen=0Towr-pBuzw&start=3969
     def neighbors(self, state):
         row, col = state
         candidates = [
