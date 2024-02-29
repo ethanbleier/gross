@@ -18,6 +18,11 @@ from bubble_sort import BubbleSort
 
 class Node():
     def __init__(self, A, parent, dataset):
+        if dataset is None:
+            self.dataset = self.DataGen()
+        else:
+            self.dataset = dataset
+        
         # A is the algo self is using/measuring
         self.A = A
 
@@ -27,9 +32,6 @@ class Node():
         # in case we want to go backwards for whatever future reason, 
         # lets monitor the parent node
         self.parent = parent
-
-        # am I doing this right? 
-        self.dataset = dataset
 
         # am I doing this right?
         self.time = A.bubbleSort(dataset)
@@ -72,21 +74,38 @@ class QueueRoot(StackRoot): # QueueRoot extends StackRoot (python > java)
             return node
 
 import csv
+import os
 
 class Measure():
 
     def __init__(self, filename):
-        # Need a way of keeping track of the best performing algorithm
-        self.data = []
-        with open(filename, 'r') as file:
-            csv_file = csv.DictReader(file)
-            for row in csv_file:
-                try:
-                    # row needs to be float
-                    r_flt = float(row[next(iter(row))])
-                    self.data.append(r_flt)
-                except (ValueError, KeyError):
-                    print(f"Encountered an invalid row({row})")
+        if filename is None:
+            self.data = self.generate_data()
+        else:
+            self.data = self.read_data(filename)
+        
+        def generate_data(self):
+            if os.path.exists("DataGen.py"):
+                os.system("python3 DataGen.py")
+                filename = "sawtoothAscendingDataWithNoise0.csv"
+                return read_data(filename)
+            else:
+                print("Data gen script not found")
+                return []
+        
+        def read_data(self, filename):
+            # Need a way of keeping track of the best performing algorithm
+            data = []
+            with open(filename, 'r') as file:
+                csv_file = csv.DictReader(file)
+                for row in csv_file:
+                    try:
+                        # row needs to be float
+                        r_flt = float(row[next(iter(row))])
+                        self.data.append(r_flt)
+                    except (ValueError, KeyError):
+                        print(f"Encountered an invalid row({row})")
+            return data
 
     def solve(self):
         """Finds best algorithm"""
@@ -97,6 +116,8 @@ class Measure():
 
         # __init__(A, state, parent, dataset)
         start = Node(A=A, parent=None, dataset=self.data)
+
+        # TODO: Go through multiple nodes, not just one
         root = StackRoot()
         root.add(start)
 
@@ -106,7 +127,7 @@ class Measure():
         # Keep looping until optimal algorithm (A*) is found
         # while True:
 
-        #     # nothing left in root bruh
+        #     # nothing left in root
         #     if root.empty():
         #         raise Exception("oops")
 
@@ -125,13 +146,17 @@ class Measure():
         #     self.explored.add(node.state)
 
         import time
-        for size in range(len(self.data)):
-            start_time = time.time()
-            end_time = time.time()
-            print(f"dataset size: {size+1}, performance in seconds: {end_time - start_time:.6f}")
-            self.num_measured += 1
+        
+        start_time = time.time()
+        A.bubbleSort(self.data)
+        end_time = time.time()
+        print(f"dataset size: {len(self.data)}, performance in seconds: {end_time - start_time:.6f}")
+        self.num_measured += 1
 
 if __name__ == "__main__":
    filename = "dataset/sawtoothAscendingDataWithNoise0.csv"
    measure = Measure(filename)
    measure.solve()
+   # TODO: Add a pretty print to see data before sorting and after sorting
+   # TODO: implement mat plot lib graphing
+   # TODO: Did we actually sort any data?
